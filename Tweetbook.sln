@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31702.278
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32630.192
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tweetbook", "Tweetbook\Tweetbook.csproj", "{3DB15BA1-9F21-4C0C-A136-5566D752B72E}"
 EndProject
@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tweetbook.Sdk.Sample", "Twe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tweetbook.Contracts", "Tweetbook.Contracts\Tweetbook.Contracts.csproj", "{7EB9F582-06C7-477B-89FF-00ABDE3027BB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tweetbook.SpecFlow", "Tweetbook.SpecFlow\Tweetbook.SpecFlow.csproj", "{4143BE03-5710-4F25-85B6-782EBE2FC3CB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tweetbook.SpecFlow", "Tweetbook.SpecFlow\Tweetbook.SpecFlow.csproj", "{4143BE03-5710-4F25-85B6-782EBE2FC3CB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "testOpenApiclient", "testOpenApiclient\testOpenApiclient.csproj", "{A741B157-A955-4884-9629-3072C66B4CCB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{4143BE03-5710-4F25-85B6-782EBE2FC3CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4143BE03-5710-4F25-85B6-782EBE2FC3CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4143BE03-5710-4F25-85B6-782EBE2FC3CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A741B157-A955-4884-9629-3072C66B4CCB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A741B157-A955-4884-9629-3072C66B4CCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A741B157-A955-4884-9629-3072C66B4CCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A741B157-A955-4884-9629-3072C66B4CCB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
