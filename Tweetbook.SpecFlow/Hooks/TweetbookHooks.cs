@@ -45,7 +45,7 @@ namespace Tweetbook.SpecFlow.Hooks
             var appFactory = new WebApplicationFactory<Startup>()
                 .WithWebHostBuilder(builder =>
                 {
-                    builder.ConfigureServices(services =>
+                    builder.ConfigureServices(async services =>
                     {
                         //var serviceDescriptor = services.FirstOrDefault(descriptor => descriptor.ServiceType == typeof(DataContext));
                         services.RemoveAll(typeof(DbContextOptions<DataContext>));
@@ -58,10 +58,17 @@ namespace Tweetbook.SpecFlow.Hooks
                         {
                             var db = serviceScope.ServiceProvider.GetService<DataContext>();
                             db.Database.EnsureCreated();
-                            var roleStore = new RoleStore<IdentityRole>(db);
-                            roleStore.CreateAsync(new Microsoft.AspNetCore.Identity.IdentityRole { Name = "POSTER", NormalizedName = "POSTER" }).Wait();
-                            // db.SaveChanges();
-
+                            var roleManager = serviceScope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                            if (!await roleManager.RoleExistsAsync("Admin"))
+                            {
+                                var adminRole = new IdentityRole("Admin");
+                                await roleManager.CreateAsync(adminRole);
+                            }
+                            if (!await roleManager.RoleExistsAsync("Poster"))
+                            {
+                                var posterRole = new IdentityRole("Poster");
+                                await roleManager.CreateAsync(posterRole);
+                            }
                         }
                     });
                 });
