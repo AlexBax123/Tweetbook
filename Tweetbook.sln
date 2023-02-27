@@ -3,17 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31702.278
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tweetbook", "..\tb\Tweetbook\Tweetbook.csproj", "{3DB15BA1-9F21-4C0C-A136-5566D752B72E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tweetbook", "Tweetbook\Tweetbook.csproj", "{3DB15BA1-9F21-4C0C-A136-5566D752B72E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tweetbook.IntegrationTests", "..\tb\Tweetbook.IntegrationTests\Tweetbook.IntegrationTests.csproj", "{EAD61DD4-38CB-4C18-9205-7B77D4B4E1F8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tweetbook.IntegrationTests", "Tweetbook.IntegrationTests\Tweetbook.IntegrationTests.csproj", "{EAD61DD4-38CB-4C18-9205-7B77D4B4E1F8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tweetbook.Sdk", "..\tb\Tweetbook.Sdk\Tweetbook.Sdk.csproj", "{C0606999-6ACE-4DC2-832B-284E163A07B9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tweetbook.Sdk", "Tweetbook.Sdk\Tweetbook.Sdk.csproj", "{C0606999-6ACE-4DC2-832B-284E163A07B9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tweetbook.Sdk.Sample", "..\tb\Tweetbook.Sdk.Sample\Tweetbook.Sdk.Sample.csproj", "{CCA3431C-7F17-41A5-9A4D-22E828674F92}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tweetbook.Sdk.Sample", "Tweetbook.Sdk.Sample\Tweetbook.Sdk.Sample.csproj", "{CCA3431C-7F17-41A5-9A4D-22E828674F92}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tweetbook.Contracts", "..\tb\Tweetbook.Contracts\Tweetbook.Contracts.csproj", "{7EB9F582-06C7-477B-89FF-00ABDE3027BB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tweetbook.Contracts", "Tweetbook.Contracts\Tweetbook.Contracts.csproj", "{7EB9F582-06C7-477B-89FF-00ABDE3027BB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tweetbook.SpecFlow", "..\tb\Tweetbook.SpecFlow\Tweetbook.SpecFlow.csproj", "{4143BE03-5710-4F25-85B6-782EBE2FC3CB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tweetbook.SpecFlow", "Tweetbook.SpecFlow\Tweetbook.SpecFlow.csproj", "{4143BE03-5710-4F25-85B6-782EBE2FC3CB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
