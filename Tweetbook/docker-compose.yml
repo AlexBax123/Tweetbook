@@ -1,0 +1,40 @@
+version: '3.5'
+
+networks:
+  localdev:
+   name: localdev
+
+services:
+  main-api:
+    build: .
+    restart: always
+    ports:
+      - "7000:5000"
+    depends_on:
+      - db-server
+    networks:
+      - localdev
+      - redis
+    #environment:
+    #  - DB_CONNECTION_STRING=Server=db-server;Database=Tweetbook;User=sa;Password=SomeGreatPassword1234_
+
+  db-server:
+    image: "mcr.microsoft.com/mssql/server:2017-CU29-ubuntu-16.04"
+    container_name: db-server
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=SomeGreatPassword1234_
+      - MSSQL_PID=Developer
+      - MSSQL_TCP_PORT=1433
+    ports:
+      - "1400:1433"
+    networks:
+      - localdev
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "49153:49153"
+    command: redis-server --requirepass ${PASSWORD} --appendonly yes
+    environment:
+      - PASSWORD=redispw
