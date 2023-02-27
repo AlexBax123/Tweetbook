@@ -18,7 +18,6 @@ namespace Tweetbook.SpecFlow.Steps
         private readonly ScenarioContext _scenarioContext;
         private readonly HttpClient _httpClient;
 
-        private HttpClient _client { get; set; }
         public CreatePostSteps(ScenarioContext scenarioContext
             , HttpClient httpClient)
         {
@@ -43,7 +42,7 @@ namespace Tweetbook.SpecFlow.Steps
                 Email = "ego@ist.be",
                 Password = "WhatTheFuck123_"
             });
-            var registrationResponse = await response.Content.ReadAsAsync<AuthSuccessResponse>();
+            var registrationResponse = await response.Content.ReadFromJsonAsync<AuthSuccessResponse>();
             return registrationResponse.Token;
         }
 
@@ -68,7 +67,7 @@ namespace Tweetbook.SpecFlow.Steps
         public async Task WhenThePostIsDeleted()
         {
             var createResponse = _scenarioContext.Get<HttpResponseMessage>("createdPost");
-            var post = await createResponse.Content.ReadAsAsync<Response<PostResponse>>();
+            var post = await createResponse.Content.ReadFromJsonAsync<Response<PostResponse>>();
             var guid = post.Data.Id;
             var deleteResponse = await _httpClient.DeleteAsync(ApiRoutes.Posts.Delete.Replace("{postId}", guid.ToString()));
             _scenarioContext.Add("deleteResponse", deleteResponse);
@@ -79,7 +78,7 @@ namespace Tweetbook.SpecFlow.Steps
         {
             var createResponse = _scenarioContext.Get<HttpResponseMessage>("createdPost");
             createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
-            var post = await createResponse.Content.ReadAsAsync<Response<PostResponse>>();
+            var post = await createResponse.Content.ReadFromJsonAsync<Response<PostResponse>>();
             post.Data.Name.Should().Be("MyTestPost1");
             var location = createResponse.Headers.Location;
         }
