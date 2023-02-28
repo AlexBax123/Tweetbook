@@ -6,7 +6,7 @@ this is one of my training excersises based on the youtube playlist about Rest A
 
 
 Some topics handled are
-- versioning
+- API versioning
 - clean service registration
 - GET, POST, PUT, DELETE
 - Entiry framework Core

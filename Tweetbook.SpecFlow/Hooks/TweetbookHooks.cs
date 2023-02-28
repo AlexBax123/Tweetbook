@@ -19,6 +19,7 @@ using Tweetbook.Contracts.V1.Requests;
 using Tweetbook.Contracts.V1.Responses;
 using Microsoft.AspNetCore.Identity;
 using BoDi;
+using System.Threading;
 
 namespace Tweetbook.SpecFlow.Hooks
 {
@@ -29,15 +30,17 @@ namespace Tweetbook.SpecFlow.Hooks
         private IServiceProvider _serviceProvider;
 
         private readonly IObjectContainer _objectContainer;
+        private readonly ScenarioContext _scenarioContext;
 
-        public TweetbookHooks(IObjectContainer objectContainer)
+        public TweetbookHooks(IObjectContainer objectContainer, ScenarioContext scenarioContext)
         {
             _objectContainer = objectContainer;
+            _scenarioContext = scenarioContext;
         }
 
         // For additional details on SpecFlow hooks see http://go.specflow.org/doc-hooks
 
-        [BeforeScenario]
+        [BeforeScenario("post")]
         public void BeforeScenario()
         {
 
@@ -72,14 +75,14 @@ namespace Tweetbook.SpecFlow.Hooks
                         }
                     });
                 });
-            //_objectContainer.RegisterInstanceAs(appFactory);
             _serviceProvider = appFactory.Services;
             var httpClient = appFactory.CreateClient();
             _objectContainer.RegisterInstanceAs(httpClient);
-            //_objectContainer.RegisterInstanceAs(new Banaan("mybanana"));
+            //_scenarioContext.Add("serviceProvider", _serviceProvider);
+            //_scenarioContext.Add("objectContainer", _objectContainer);
         }
 
-        [AfterScenario]
+        [AfterScenario("post")]
         public void AfterScenario()
         {
             using var serviceScope = _serviceProvider.CreateScope();
@@ -88,14 +91,4 @@ namespace Tweetbook.SpecFlow.Hooks
             //TODO: implement logic that has to run after executing each scenario
         }
     }
-
-    //public class Banaan
-    //{
-
-    //    public Banaan(string naam)
-    //    {
-    //        Naam = naam;
-    //    }
-    //    public string Naam { get; private set; } = "banana";
-    //}
 }

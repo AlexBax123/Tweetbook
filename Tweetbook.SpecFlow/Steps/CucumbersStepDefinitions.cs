@@ -1,11 +1,11 @@
-using FluentAssertions;
 using System;
 using TechTalk.SpecFlow;
+using FluentAssertions;
 
-namespace Tweetbook.SpecFlow
+namespace Tweetbook.SpecFlow.Steps
 {
     [Binding]
-    public class CalculatorStepDefinitions
+    public class CucumbersStepDefinitions
     {
         private int _p0;
         private int _p1;

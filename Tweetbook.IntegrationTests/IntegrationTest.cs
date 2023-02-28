@@ -77,7 +77,7 @@ namespace Tweetbook.IntegrationTests
         protected async Task<Response<PostResponse>> CreatePostAsync(CreatePostRequest createPostRequest)
         {
             var response = await _httpClient.PostAsJsonAsync(ApiRoutes.Posts.Create, createPostRequest);
-            return await response.Content.ReadAsAsync<Response<PostResponse>>();
+            return await response.Content.ReadFromJsonAsync<Response<PostResponse>>();
         }
 
         private async Task<string> GetJwtAsync()
@@ -87,7 +87,7 @@ namespace Tweetbook.IntegrationTests
                 Email = "ego@ist.be",
                 Password = "WhatTheFuck123_"
             });
-            var registrationResponse = await response.Content.ReadAsAsync<AuthSuccessResponse>();
+            var registrationResponse = await response.Content.ReadFromJsonAsync<AuthSuccessResponse>();
             return registrationResponse.Token;
         }
     }
