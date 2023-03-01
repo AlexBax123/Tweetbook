@@ -19,7 +19,7 @@ namespace Tweetbook.SpecFlow.Features
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "3.9.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public partial class CreatePostFeature : object, Xunit.IClassFixture<CreatePostFeature.FixtureData>, System.IDisposable
+    public partial class DeleteAPostFeature : object, Xunit.IClassFixture<DeleteAPostFeature.FixtureData>, System.IDisposable
     {
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;
@@ -28,10 +28,10 @@ namespace Tweetbook.SpecFlow.Features
         
         private Xunit.Abstractions.ITestOutputHelper _testOutputHelper;
         
-#line 1 "CreatePost.feature"
+#line 1 "DeleteAPost.feature"
 #line hidden
         
-        public CreatePostFeature(CreatePostFeature.FixtureData fixtureData, Tweetbook_SpecFlow_XUnitAssemblyFixture assemblyFixture, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
+        public DeleteAPostFeature(DeleteAPostFeature.FixtureData fixtureData, Tweetbook_SpecFlow_XUnitAssemblyFixture assemblyFixture, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
         {
             this._testOutputHelper = testOutputHelper;
             this.TestInitialize();
@@ -40,7 +40,7 @@ namespace Tweetbook.SpecFlow.Features
         public static void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Features", "CreatePost", "\tSimple calculator for adding two numbers", ProgrammingLanguage.CSharp, featureTags);
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Features", "DeleteAPost", "A short summary of the feature", ProgrammingLanguage.CSharp, featureTags);
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -80,41 +80,8 @@ namespace Tweetbook.SpecFlow.Features
             this.TestTearDown();
         }
         
-        [Xunit.SkippableFactAttribute(DisplayName="Create A Post Succesfully")]
-        [Xunit.TraitAttribute("FeatureTitle", "CreatePost")]
-        [Xunit.TraitAttribute("Description", "Create A Post Succesfully")]
-        [Xunit.TraitAttribute("Category", "post")]
-        public void CreateAPostSuccesfully()
-        {
-            string[] tagsOfScenario = new string[] {
-                    "post"};
-            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Create A Post Succesfully", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 5
-this.ScenarioInitialize(scenarioInfo);
-#line hidden
-            if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                testRunner.SkipScenario();
-            }
-            else
-            {
-                this.ScenarioStart();
-#line 6
- testRunner.Given("I am logged in", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
-#line hidden
-#line 7
- testRunner.When("I create a post \"MyPost1\" with the following Tags", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
-#line hidden
-#line 8
- testRunner.Then("the post is created succesfully", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
-#line hidden
-            }
-            this.ScenarioCleanup();
-        }
-        
         [Xunit.SkippableFactAttribute(DisplayName="Delete A Post Succesfully")]
-        [Xunit.TraitAttribute("FeatureTitle", "CreatePost")]
+        [Xunit.TraitAttribute("FeatureTitle", "DeleteAPost")]
         [Xunit.TraitAttribute("Description", "Delete A Post Succesfully")]
         [Xunit.TraitAttribute("Category", "post")]
         public void DeleteAPostSuccesfully()
@@ -123,7 +90,7 @@ this.ScenarioInitialize(scenarioInfo);
                     "post"};
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Delete A Post Succesfully", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 11
+#line 6
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
@@ -133,16 +100,16 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-#line 12
+#line 7
  testRunner.Given("I am logged in as Deleter", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
-#line 13
- testRunner.Given("the post \"MyPost3\" exists in the system", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line 8
+ testRunner.Given("the post \"MyPost2\" exists in the system", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
-#line 14
+#line 9
  testRunner.When("the post is deleted", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
-#line 15
+#line 10
  testRunner.Then("the post is deleted succesfully", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
@@ -156,12 +123,12 @@ this.ScenarioInitialize(scenarioInfo);
             
             public FixtureData()
             {
-                CreatePostFeature.FeatureSetup();
+                DeleteAPostFeature.FeatureSetup();
             }
             
             void System.IDisposable.Dispose()
             {
-                CreatePostFeature.FeatureTearDown();
+                DeleteAPostFeature.FeatureTearDown();
             }
         }
     }

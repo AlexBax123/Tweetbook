@@ -21,7 +21,8 @@ namespace Tweetbook.SpecFlow
             , PostsDriver postsDriver)
         {
             _scenarioContext = scenarioContext;
-            _postsDriver = postsDriver;
+            _postsDriver = postsDriver; 
+
         }
 
         [Given(@"I am logged in as Deleter")]

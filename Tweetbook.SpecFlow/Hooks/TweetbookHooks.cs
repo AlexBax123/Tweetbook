@@ -26,26 +26,16 @@ namespace Tweetbook.SpecFlow.Hooks
     [Binding]
     public sealed class TweetbookHooks
     {
-        //protected HttpClient _httpClient;
         private IServiceProvider _serviceProvider;
-
-        private readonly IObjectContainer _objectContainer;
-        private readonly ScenarioContext _scenarioContext;
-
-        public TweetbookHooks(IObjectContainer objectContainer, ScenarioContext scenarioContext)
-        {
-            _objectContainer = objectContainer;
-            _scenarioContext = scenarioContext;
-        }
 
         // For additional details on SpecFlow hooks see http://go.specflow.org/doc-hooks
 
         [BeforeScenario("post")]
-        public void BeforeScenario()
+        public void BeforeScenario(ObjectContainer objectContainer)
         {
-
-            //TODO: implement logic that has to run before executing each scenario
-            var appFactory = new WebApplicationFactory<Startup>()
+            string dbName = Guid.NewGuid().ToString();
+        //TODO: implement logic that has to run before executing each scenario
+        var appFactory = new WebApplicationFactory<Startup>()
                 .WithWebHostBuilder(builder =>
                 {
                     builder.ConfigureServices(async services =>
@@ -54,7 +44,7 @@ namespace Tweetbook.SpecFlow.Hooks
                         services.RemoveAll(typeof(DbContextOptions<DataContext>));
                         services.AddDbContext<DataContext>(options =>
                         {
-                            options.UseInMemoryDatabase("TestDb");
+                        options.UseInMemoryDatabase(dbName);// "TestDb");
                         });
                         var sp = services.BuildServiceProvider();
                         using (var serviceScope = sp.CreateScope())
@@ -77,9 +67,7 @@ namespace Tweetbook.SpecFlow.Hooks
                 });
             _serviceProvider = appFactory.Services;
             var httpClient = appFactory.CreateClient();
-            _objectContainer.RegisterInstanceAs(httpClient);
-            //_scenarioContext.Add("serviceProvider", _serviceProvider);
-            //_scenarioContext.Add("objectContainer", _objectContainer);
+            objectContainer.BaseContainer.RegisterInstanceAs(httpClient);
         }
 
         [AfterScenario("post")]

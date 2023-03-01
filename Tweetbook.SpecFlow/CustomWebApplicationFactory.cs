@@ -8,6 +8,7 @@ namespace Tweetbook.SpecFlow
 {
     public class CustomWebApplicationFactory: WebApplicationFactory<Startup>
     {
+
         //protected string ApplicationName;
         protected override IHostBuilder CreateHostBuilder()
         {

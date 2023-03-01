@@ -10,7 +10,7 @@ Scenario: Create A Post Succesfully
 @post
 Scenario:  Delete A Post Succesfully
 	Given I am logged in as Deleter
-	Given the post "MyPost2" exists in the system
+	Given the post "MyPost3" exists in the system
 	When the post is deleted
 	Then the post is deleted succesfully
 
