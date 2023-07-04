@@ -1,0 +1,29 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor _httpContext
+@{
+    var userName = _httpContext.HttpContext.Session.GetString("UserName");
+}
+
+
+
+<ul class="navbar-nav">
+@if (!string.IsNullOrEmpty(@userName))
+{
+    <li class="nav-item">
+        <a  class="nav-link text-dark" asp-page="/Login/Login" asp-route-ReturnUrl="/Posts" title="Manage">Hello @userName!</a>
+    </li>
+    <li class="nav-item">
+         <a  class="nav-link text-dark" asp-page="/LogOut/LogOut" title="Manage">Log Out</a>
+
+    </li>
+}
+else
+{
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-page="/Register/Register" asp-route-ReturnUrl="/Posts">Register</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-page="/Login/Login" asp-route-ReturnUrl="/Posts">Login</a>
+    </li>
+}
+</ul>
