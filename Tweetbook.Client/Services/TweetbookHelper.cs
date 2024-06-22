@@ -1,6 +1,7 @@
 ﻿
 
 using Polly;
+using Polly.Retry;
 using System.Net;
 using System.Text.RegularExpressions;
 using Tweetbook.Client.Models;
@@ -21,10 +22,7 @@ namespace Tweetbook.Client.Services
 
         public async Task<AllPostsResponseData> GetAllPostsAsync()
         {
-            var session = _httpContextAccessor.HttpContext.Session;
-            var token = session.GetString("token");
-            var refreshtoken = session.GetString("refreshtoken");
-            if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(refreshtoken))
+            if (!LoggedIn(out string token))
             {
                 return new AllPostsResponseData()
                 {
@@ -37,26 +35,7 @@ namespace Tweetbook.Client.Services
 
             var apiClient = new TweetbookApi.TweetbookService(_httpClient.BaseAddress.ToString(), _httpClient);
 
-            var refrequest = new RefreshTokenRequest() { Token = token, RefreshToken = refreshtoken };
-
-            var policy = Polly.Policy
-                .Handle<ApiException>(r => r.StatusCode is (int)HttpStatusCode.Unauthorized or (int)HttpStatusCode.Forbidden)
-                .RetryAsync(
-                retryCount: 1,
-                onRetryAsync: async (_, _) =>
-                {
-                    Console.WriteLine($"refresh the token {token}");
-                    AuthSuccessResponse response = await
-                     apiClient.RefreshAsync(refrequest);
-                    token = response.Token;
-                    refreshtoken = response.RefreshToken;
-                    session.SetString("token", token);
-                    session.SetString("refreshtoken", refreshtoken);
-                    Console.WriteLine($"new token {token}");
-                    _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-
-                }
-                );
+            AsyncRetryPolicy policy = GetPolicy();
 
             try
             {
@@ -89,6 +68,45 @@ namespace Tweetbook.Client.Services
 
         }
 
+        private bool LoggedIn(out string token)
+        {
+            var session = _httpContextAccessor.HttpContext.Session;
+            token = session.GetString("token") ?? "";
+            var refreshtoken = session.GetString("refreshtoken");
+            return !string.IsNullOrWhiteSpace(token) && !string.IsNullOrWhiteSpace(refreshtoken);      
+        }
+
+        private AsyncRetryPolicy GetPolicy()
+        {
+            var policy = Polly.Policy
+                .Handle<ApiException>(r => r.StatusCode is (int)HttpStatusCode.Unauthorized or (int)HttpStatusCode.Forbidden)
+                .RetryAsync(
+                retryCount: 1,
+                onRetryAsync: async (_, _) =>
+                {
+                    var apiClient = new TweetbookApi.TweetbookService(_httpClient.BaseAddress.ToString(), _httpClient);
+
+                    var session = _httpContextAccessor.HttpContext.Session;
+                    var token = session.GetString("token");
+                    var refreshtoken = session.GetString("refreshtoken");
+
+
+                    var refrequest = new RefreshTokenRequest() { Token = token, RefreshToken = refreshtoken };
+                    Console.WriteLine($"refresh the token {token}");
+                    AuthSuccessResponse response = await
+                     apiClient.RefreshAsync(refrequest);
+                    token = response.Token;
+                    refreshtoken = response.RefreshToken;
+                    session.SetString("token", token);
+                    session.SetString("refreshtoken", refreshtoken);
+                    Console.WriteLine($"new token {token}");
+                    _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+                }
+                );
+            return policy;
+        }
+
         public async Task<CreatePostResponseData> CreatePostAsync(CreatePost createPost)
         {
             Regex regex = new Regex("[^a-z^A-Z]");
@@ -117,25 +135,7 @@ namespace Tweetbook.Client.Services
 
 
             var refrequest = new RefreshTokenRequest() { Token = token, RefreshToken = refreshtoken };
-
-            var policy = Polly.Policy
-                .Handle<ApiException>(r => r.StatusCode is (int)HttpStatusCode.Unauthorized or (int)HttpStatusCode.Forbidden)
-                .RetryAsync(
-                retryCount: 1,
-                onRetryAsync: async (_, _) =>
-                {
-                    Console.WriteLine($"refresh the token {token}");
-                    AuthSuccessResponse response = await
-                     apiClient.RefreshAsync(refrequest);
-                    token = response.Token;
-                    refreshtoken = response.RefreshToken;
-                    session.SetString("token", token);
-                    session.SetString("refreshtoken", refreshtoken);
-                    Console.WriteLine($"new token {token}");
-                    _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-
-                }
-                );
+            AsyncRetryPolicy policy = GetPolicy();
 
             try
             {
@@ -172,7 +172,7 @@ namespace Tweetbook.Client.Services
             {
                 Name = updatePost.Name,
                 Tags = tags
-                
+
             };
 
             var session = _httpContextAccessor.HttpContext.Session;
@@ -193,24 +193,7 @@ namespace Tweetbook.Client.Services
 
             var refrequest = new RefreshTokenRequest() { Token = token, RefreshToken = refreshtoken };
 
-            var policy = Polly.Policy
-                .Handle<ApiException>(r => r.StatusCode is (int)HttpStatusCode.Unauthorized or (int)HttpStatusCode.Forbidden)
-                .RetryAsync(
-                retryCount: 1,
-                onRetryAsync: async (_, _) =>
-                {
-                    Console.WriteLine($"refresh the token {token}");
-                    AuthSuccessResponse response = await
-                     apiClient.RefreshAsync(refrequest);
-                    token = response.Token;
-                    refreshtoken = response.RefreshToken;
-                    session.SetString("token", token);
-                    session.SetString("refreshtoken", refreshtoken);
-                    Console.WriteLine($"new token {token}");
-                    _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-
-                }
-                );
+            AsyncRetryPolicy policy = GetPolicy();
 
             try
             {
@@ -220,12 +203,12 @@ namespace Tweetbook.Client.Services
                     Success = true
                 };
             }
-            catch   (ApiException<ErrorResponse> ex)
+            catch (ApiException<ErrorResponse> ex)
             {
                 return new UpdatePostResponseData()
                 {
                     Success = false,
-                    Errors =  ex.Result.Errors.Select(e=>e.Message).ToList() 
+                    Errors = ex.Result.Errors.Select(e => e.Message).ToList()
                 };
             }
             catch (ApiException ex)
@@ -251,45 +234,45 @@ namespace Tweetbook.Client.Services
             var apiClient = new TweetbookApi.TweetbookService(_httpClient.BaseAddress.ToString(), _httpClient);
             try
             {
-                    var result = await apiClient.LoginAsync(new UserLoginRequest() { Email = loginData.Email, Password = loginData.Password });
-                    var loginResponseData = new LoginResponseData()
-                    {
-                        Success = true
-                    };
-                    var session = _httpContextAccessor.HttpContext.Session;
-                    session.SetString("token", result.Token);
-                    session.SetString("refreshtoken", result.RefreshToken);
-                    session.SetString("UserName", loginData.Email);
+                var result = await apiClient.LoginAsync(new UserLoginRequest() { Email = loginData.Email, Password = loginData.Password });
+                var loginResponseData = new LoginResponseData()
+                {
+                    Success = true
+                };
+                var session = _httpContextAccessor.HttpContext.Session;
+                session.SetString("token", result.Token);
+                session.SetString("refreshtoken", result.RefreshToken);
+                session.SetString("UserName", loginData.Email);
 
-                    return loginResponseData;
-                }
-                catch (ApiException<AuthFailureResponse> ex)
+                return loginResponseData;
+            }
+            catch (ApiException<AuthFailureResponse> ex)
+            {
+                var loginResponseData = new LoginResponseData()
                 {
-                    var loginResponseData = new LoginResponseData()
-                    {
-                        Success = false,
-                        Errors = ex.Result.Errors
-                    };
-                    return loginResponseData;
-                }
-                catch (ApiException ex)
+                    Success = false,
+                    Errors = ex.Result.Errors
+                };
+                return loginResponseData;
+            }
+            catch (ApiException ex)
+            {
+                var loginResponseData = new LoginResponseData()
                 {
-                    var loginResponseData = new LoginResponseData()
-                    {
-                        Success = false,
-                        Errors = new List<string>() { ex.Message }
-                    };
-                    return loginResponseData;
-                }
-                catch (Exception ex)
+                    Success = false,
+                    Errors = new List<string>() { ex.Message }
+                };
+                return loginResponseData;
+            }
+            catch (Exception ex)
+            {
+                var loginResponseData = new LoginResponseData()
                 {
-                    var loginResponseData = new LoginResponseData()
-                    {
-                        Success = false,
-                        Errors = new List<string>() { ex.Message }
-                    };
-                    return loginResponseData;
-                }       
+                    Success = false,
+                    Errors = new List<string>() { ex.Message }
+                };
+                return loginResponseData;
+            }
         }
 
         public async Task<RegisterResponseData> Register(RegisterData registerData)
@@ -297,44 +280,44 @@ namespace Tweetbook.Client.Services
             var apiClient = new TweetbookApi.TweetbookService(_httpClient.BaseAddress.ToString(), _httpClient);
             try
             {
-                    var result = await apiClient.RegisterAsync(new UserRegistrationRequest() { Email = registerData.Email, Password = registerData.Password });
-                    var registerResponseData = new RegisterResponseData()
-                    {
-                        Success = true
-                    };
-                    var session = _httpContextAccessor.HttpContext.Session;
-                    session.SetString("token", result.Token);
-                    session.SetString("refreshtoken", result.RefreshToken);
-                    return registerResponseData;
-                }
-                catch (ApiException<AuthFailureResponse> ex)
+                var result = await apiClient.RegisterAsync(new UserRegistrationRequest() { Email = registerData.Email, Password = registerData.Password });
+                var registerResponseData = new RegisterResponseData()
                 {
-                    var registerResponseData = new RegisterResponseData()
-                    {
-                        Success = false,
-                        Errors = ex.Result.Errors
-                    };
-                    return registerResponseData;
-                }
-                catch (ApiException ex)
+                    Success = true
+                };
+                var session = _httpContextAccessor.HttpContext.Session;
+                session.SetString("token", result.Token);
+                session.SetString("refreshtoken", result.RefreshToken);
+                return registerResponseData;
+            }
+            catch (ApiException<AuthFailureResponse> ex)
+            {
+                var registerResponseData = new RegisterResponseData()
                 {
-                    var registerResponseData = new RegisterResponseData()
-                    {
-                        Success = false,
-                        Errors = new List<string>() { ex.Message }
-                    };
-                    return registerResponseData;
-                }
-                catch (Exception ex)
+                    Success = false,
+                    Errors = ex.Result.Errors
+                };
+                return registerResponseData;
+            }
+            catch (ApiException ex)
+            {
+                var registerResponseData = new RegisterResponseData()
                 {
-                    var registerResponseData = new RegisterResponseData()
-                    {
-                        Success = false,
-                        Errors = new List<string>() { ex.Message }
-                    };
-                    return registerResponseData;
-                }
-            
+                    Success = false,
+                    Errors = new List<string>() { ex.Message }
+                };
+                return registerResponseData;
+            }
+            catch (Exception ex)
+            {
+                var registerResponseData = new RegisterResponseData()
+                {
+                    Success = false,
+                    Errors = new List<string>() { ex.Message }
+                };
+                return registerResponseData;
+            }
+
         }
 
         public async Task<PostResponseData> GetPostAsync(Guid id)
@@ -357,24 +340,7 @@ namespace Tweetbook.Client.Services
 
             var refrequest = new RefreshTokenRequest() { Token = token, RefreshToken = refreshtoken };
 
-            var policy = Polly.Policy
-                .Handle<ApiException>(r => r.StatusCode is (int)HttpStatusCode.Unauthorized or (int)HttpStatusCode.Forbidden)
-                .RetryAsync(
-                retryCount: 1,
-                onRetryAsync: async (_, _) =>
-                {
-                    Console.WriteLine($"refresh the token {token}");
-                    AuthSuccessResponse response = await
-                     apiClient.RefreshAsync(refrequest);
-                    token = response.Token;
-                    refreshtoken = response.RefreshToken;
-                    session.SetString("token", token);
-                    session.SetString("refreshtoken", refreshtoken);
-                    Console.WriteLine($"new token {token}");
-                    _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-
-                }
-                );
+            AsyncRetryPolicy policy = GetPolicy();
 
             try
             {
@@ -426,24 +392,7 @@ namespace Tweetbook.Client.Services
 
             var refrequest = new RefreshTokenRequest() { Token = token, RefreshToken = refreshtoken };
 
-            var policy = Polly.Policy
-                .Handle<ApiException>(r => r.StatusCode is (int)HttpStatusCode.Unauthorized or (int)HttpStatusCode.Forbidden)
-                .RetryAsync(
-                retryCount: 1,
-                onRetryAsync: async (_, _) =>
-                {
-                    Console.WriteLine($"refresh the token {token}");
-                    AuthSuccessResponse response = await
-                     apiClient.RefreshAsync(refrequest);
-                    token = response.Token;
-                    refreshtoken = response.RefreshToken;
-                    session.SetString("token", token);
-                    session.SetString("refreshtoken", refreshtoken);
-                    Console.WriteLine($"new token {token}");
-                    _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-
-                }
-                );
+            AsyncRetryPolicy policy = GetPolicy();
 
             try
             {
