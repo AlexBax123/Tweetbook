@@ -1,20 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-
   <ItemGroup>
+    <PackageReference Include="Polly" Version="8.4.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Polly" Version="7.2.4" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Tweetbook.Contracts\Tweetbook.Contracts.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <Content Update="OpenAPIs\swagger.json">
       <SourceUri>http://localhost:5001/swagger/v1/swagger.json</SourceUri>
@@ -23,5 +19,4 @@
       <ClassName>TweetbookService</ClassName>
     </Content>
   </ItemGroup>
-
 </Project>

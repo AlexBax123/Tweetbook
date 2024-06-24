@@ -15,7 +15,7 @@ namespace Tweetbook.Sdk.Sample
             string cachedToken = string.Empty;
             var identityApi = RestService.For<IIdentityApi>(UriString);
             var tweetbookApi = RestService.For<ITweetbookApi>(UriString, new RefitSettings { 
-             AuthorizationHeaderValueGetter = ()=> Task.FromResult(cachedToken)
+             AuthorizationHeaderValueGetter = () => Task.FromResult(cachedToken)
             });
 
             var registerResponse = await identityApi.RegisterAsync(new UserRegistrationRequest
