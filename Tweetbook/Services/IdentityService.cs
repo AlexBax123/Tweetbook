@@ -193,7 +193,17 @@ namespace Tweetbook.Services
                 Expires = DateTime.UtcNow.Add(_jwtSettings.TokenLifetime),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
             };
-            var token = tokenHandler.CreateToken(tokenDescription);
+            SecurityToken token;
+            try
+            {
+                token = tokenHandler.CreateToken(tokenDescription);
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
             var refreshToken = new RefreshToken
             {
                 Token = Guid.NewGuid().ToString(),
