@@ -18,3 +18,4 @@ Some topics handled are
 - Swagger documentation
 - Redis response caching
 - BDD with Specflow
+- Blazor Server Render Mode in .NET 8
