@@ -46,18 +46,13 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
-            <td>
-                <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
         </tr>
 }
     </tbody>
 </table>
 
 <div>
-    <a asp-page="./Edit" asp-route-id="@Model.Post.UserId">Edit</a> |
+    <a asp-page="./Edit" asp-route-id="@Model.Post.Id">Edit</a> |
     <a asp-page="./Index">Back to List</a>
 </div>
         <div>
