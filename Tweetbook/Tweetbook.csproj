@@ -30,6 +30,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="SwaggerExamples\Requests\" />
+    <Folder Include="TestResults\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Tweetbook.Contracts\Tweetbook.Contracts.csproj" />

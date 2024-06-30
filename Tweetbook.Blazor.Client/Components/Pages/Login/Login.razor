@@ -1,0 +1,48 @@
+﻿@page "/Login"
+@inject ITweetbookHelper TweetbookHelper
+@inject NavigationManager NavigationManager
+@inject CookieStorageAccessor CookieStorageAccessor
+@inject ILogger<Login> Logger
+@rendermode InteractiveServer
+
+<h3>Login</h3>
+
+<EditForm FormName="LoginForm" Model="Input" OnSubmit="LoginAsync">
+    <div>
+        <label for="email" class="form-label">Email</label>
+        <InputText id="email" @bind-Value="Input.Email"  class="form-control" />
+    </div>
+    <div>
+        <label for="password" class="form-label">Password</label>
+        <InputText id="password" @bind-Value="Input.Password" class="form-control" />
+    </div>
+    <div>
+        <button type="submit" class="btn btn-primary">Login</button>
+    </div>
+</EditForm>
+
+@code {
+    public LoginData Input { get; set; } = new ();
+    string ReturnUrl { get; set; } = string.Empty;
+    string ErrorMessage { get; set; } = string.Empty;
+    ICollection<string> Errors { get; set; } = new List<string>();
+
+    private async Task LoginAsync()
+    {
+        // This doesn't count login failures towards account lockout
+        // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+        var result = await TweetbookHelper.Login(Input);
+        if (result.Success)
+        {
+            Logger.LogInformation("User logged in.");
+            Errors = new List<string>();
+            //await CookieStorageAccessor.SetValueAsync("Blazor_UserName", Input.Email);
+            NavigationManager.NavigateTo("/posts");
+        }
+        else
+        {
+            Errors = result.Errors;
+            //return Page();
+        }
+    }
+}

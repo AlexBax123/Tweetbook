@@ -1,0 +1,80 @@
+﻿@page "/posts"
+@inject ITweetbookHelper TweetbookHelper
+@inject NavigationManager NavigationManager
+@rendermode @(new InteractiveServerRenderMode(prerender:false))
+
+<h3>Index</h3>
+<p>
+    <a asp-page="Create">Create New</a>
+    <button class="btn btn-primary" @onclick="@(()=>AddPost())">Add Post</button>|
+
+</p>
+
+@if (Posts.Count == 0 && Errors.Count == 0)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Name
+                </th>
+                <th>
+                    UserId
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Posts)
+            {
+                <tr>
+                    <td>
+                        @item.Name
+                    </td>
+                    <td>
+                        @item.UserId
+                    </td>
+                    <td>
+                        <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> 
+                        <button class="btn btn-primary" @onclick="@(()=>EditPost(item.Id))" >Edit Post</button>|
+                        <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
+                        <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div>
+        @foreach (var item in Errors)
+        {
+            <p>@item</p>
+        }
+    </div>
+}
+@code {
+    IList<PostResponse> Posts = new List<PostResponse>();
+    ICollection<string> Errors = new List<string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Delay(500);
+        var respons = await TweetbookHelper.GetAllPostsAsync();
+        if (respons.Success)
+            Posts = respons.PostResponsePagedResponse.Data.ToList();
+
+        Errors = respons.Errors;
+    }
+
+    private void EditPost(Guid guid)
+    {
+        NavigationManager.NavigateTo($"/posts/Edit/{guid}");
+    }
+    private void AddPost()
+    {
+        NavigationManager.NavigateTo($"/posts/Edit");
+    }
+}
