@@ -5,9 +5,7 @@
 
 <h3>Index</h3>
 <p>
-    <a asp-page="Create">Create New</a>
     <button class="btn btn-primary" @onclick="@(()=>AddPost())">Add Post</button>|
-
 </p>
 
 @if (Posts.Count == 0 && Errors.Count == 0)
@@ -39,10 +37,9 @@ else
                         @item.UserId
                     </td>
                     <td>
-                        <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> 
-                        <button class="btn btn-primary" @onclick="@(()=>EditPost(item.Id))" >Edit Post</button>|
-                        <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
-                        <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+                        <button class="btn btn-primary" @onclick="@(()=>EditPost(item.Id))" >Edit</button>|
+                        <button class="btn btn-primary" @onclick="@(()=>DeletePost(item.Id))">Delete</button>|
+                        <button class="btn btn-primary" @onclick="@(()=>DetailsPost(item.Id))">Details</button>|
                     </td>
                 </tr>
             }
@@ -72,6 +69,14 @@ else
     private void EditPost(Guid guid)
     {
         NavigationManager.NavigateTo($"/posts/Edit/{guid}");
+    }
+    private void DetailsPost(Guid guid)
+    {
+        NavigationManager.NavigateTo($"/posts/Details/{guid}");
+    }
+    private void DeletePost(Guid guid)
+    {
+        NavigationManager.NavigateTo($"/posts/Delete/{guid}");
     }
     private void AddPost()
     {

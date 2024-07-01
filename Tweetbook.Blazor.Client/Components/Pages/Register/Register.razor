@@ -1,0 +1,48 @@
+﻿@page "/Register"
+@inject ITweetbookHelper TweetbookHelper
+@inject NavigationManager NavigationManager
+@inject CookieStorageAccessor CookieStorageAccessor
+@inject ILogger<Register> Logger
+@rendermode InteractiveServer
+
+<h3>Register</h3>
+
+<EditForm FormName="RegisterForm" Model="Input" OnSubmit="RegisterAsync">
+    <div>
+        <label for="email" class="form-label">Email</label>
+        <InputText id="email" @bind-Value="Input.Email"  class="form-control" />
+    </div>
+    <div>
+        <label for="password" class="form-label">Password</label>
+        <InputText id="password" @bind-Value="Input.Password" class="form-control" />
+    </div>
+    <div>
+        <button type="submit" class="btn btn-primary">Register</button>
+    </div>
+</EditForm>
+
+@code {
+    public RegisterData Input { get; set; } = new ();
+    string ReturnUrl { get; set; } = string.Empty;
+    string ErrorMessage { get; set; } = string.Empty;
+    ICollection<string> Errors { get; set; } = new List<string>();
+
+    private async Task RegisterAsync()
+    {
+        // This doesn't count Register failures towards account lockout
+        // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+        var result = await TweetbookHelper.Register(Input);
+        if (result.Success)
+        {
+            Logger.LogInformation("User Registered.");
+            Errors = new List<string>();
+            //await CookieStorageAccessor.SetValueAsync("Blazor_UserName", Input.Email);
+            NavigationManager.NavigateTo("/posts");
+        }
+        else
+        {
+            Errors = result.Errors;
+            //return Page();
+        }
+    }
+}

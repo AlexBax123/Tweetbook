@@ -1,39 +1,26 @@
-﻿@page "/posts/Edit"
-@page "/posts/Edit/{Id}"
+﻿@page "/posts/Delete/{Id}"
 @inject ITweetbookHelper TweetbookHelper
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 
-<h3>Edit</h3>
+<h3>Are you sure you want to delete this?</h3>
 <h4>Post</h4>
 <hr />
-@if (string.IsNullOrEmpty(Id) || Post is null)
-{
-    <PageTitle>Add a Post</PageTitle>
-    <h3>Add a Post</h3>
-}
-else
-{
-    <PageTitle>Edit "@Post.Name"</PageTitle>
-    <h3>Edit "@Post.Name"</h3>
-}
+<PageTitle>Delete "@Post.Name"</PageTitle>
+<h3>Delete "@Post.Name"</h3>
 
-<EditForm FormName="a" Model="Post" OnSubmit="SavePostAsync">
+<EditForm FormName="a" Model="Post" OnSubmit="DeletePostAsync">
     <div>
-        <label for="name" class="form-label">Name</label>
-        <InputText id="name" @bind-Value="Post.Name" class="form-control" />
-
+        <label for="name" class="form-label">Name: </label>
+        <label id="name">@Post.Name</label>
     </div>
     <div>
-        <label for="tags" class="form-label">Tags</label>
-        <InputText id="tags" @bind-Value="Post.Tags" class="form-control" />
-
-
+        <label for="tags" class="form-label">Tags: </label>
+        <label id="tags">@Post.Tags</label>
     </div>
     <div class="d-none">
         <label for="userId" class="form-label">UserId</label>
         <InputText for="userId" @bind-Value="Post.UserId" class="form-control" />
-
     </div>
     <div>
         <button type="submit" class="btn btn-primary">Save</button>
@@ -50,8 +37,8 @@ else
 </div>
 @code {
     [Parameter]
-    public string Id { get; set; } = "a";
-    UpdatePost Post { get; set; } = new UpdatePost { Name = "a", PostId = Guid.Empty, Tags = "b", UserId = "c" };
+    public string Id { get; set; } = "";
+    UpdatePost Post { get; set; } = new UpdatePost { Name = "", PostId = Guid.Empty, Tags = "", UserId = "" };
     ICollection<string> Errors { get; set; } = new List<string>();
 
     protected override async Task OnParametersSetAsync()
@@ -72,38 +59,18 @@ else
         }
     }
 
-    private async Task SavePostAsync()
+    private async Task DeletePostAsync()
     {
-        if (string.IsNullOrEmpty(Id))
+        var result = await TweetbookHelper.DeletePostAsync(Post.PostId);
+        if (result.Success)
         {
-            var result = await TweetbookHelper.CreatePostAsync(new CreatePost
-                {
-                    Name = Post.Name,
-                    Tags = Post.Tags
-                });
-            if (result.Success)
-            {
-                NavigationManager.NavigateTo("/posts");
-            }
-            else
-            {
-                Errors = result.Errors;
-            }
+            NavigationManager.NavigateTo("/posts");
         }
         else
         {
-            var result = await TweetbookHelper.UpdatePostAsync(Post);
-            if (result.Success)
-            {
-                NavigationManager.NavigateTo("/posts");
-            }
-            else
-            {
-                Errors = result.Errors;
-            }
+            Errors = result.Errors;
         }
     }
-
     private void ViewPosts()
     {
         NavigationManager.NavigateTo("/posts");
