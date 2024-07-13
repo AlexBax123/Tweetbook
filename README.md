@@ -11,7 +11,7 @@ Some topics handled are
 - GET, POST, PUT, DELETE
 - Entity framework Core
 - cosmos db
-- JWT Token and Refresh Token
+- JWT Token and Refresh Token (BEARER)
 - Docker
 - Integration Testing with WebApplicationFactory
 - Restricting endpoints with roles, claim, Authorization Handlers
@@ -19,3 +19,4 @@ Some topics handled are
 - Redis response caching
 - BDD with Specflow
 - Blazor Server Render Mode in .NET 8
+- Blazor webassembly Render Mode in .NET 8
