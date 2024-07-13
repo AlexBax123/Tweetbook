@@ -1,0 +1,30 @@
+﻿@page "/counter"
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject IJSRuntime JsRuntime;
+<PageTitle>Counter</PageTitle>
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @currentCount</p>
+<p role="status">Current count: @a</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+@code {
+    private int currentCount = 0;
+    private string a = "";
+
+    private async Task IncrementCount()
+    {
+        var x = $"{currentCount}";
+        await JsRuntime.InvokeAsync<object>("WriteCookie.WriteCookie", "cookieName", x, DateTime.Now.AddMinutes(1));
+        a =  await JsRuntime.InvokeAsync<string>("ReadCookie.ReadCookie", "cookieName1");
+
+        if (a is "")
+            a = "99";
+        // var prevcount = int.Parse(a);
+        // if(prevcount % 5 == 0)
+        //     currentCount++;
+        currentCount++;
+    }
+}

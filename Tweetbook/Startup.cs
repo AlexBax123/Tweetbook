@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
 using Tweetbook.Extensions;
 using Tweetbook.Installer;
 using Tweetbook.Options;
@@ -23,6 +24,7 @@ namespace Tweetbook
         {
             services.InstallServicesInAssembly(Configuration);
             services.AddAutoMapper(typeof(Startup));
+            services.AddCors();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -49,7 +51,10 @@ namespace Tweetbook
             });
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
+            app.UseCors(x => x
+                      .AllowAnyMethod()
+                      .AllowAnyHeader()
+                      .AllowAnyOrigin()); // allow credentials
             app.UseAuthentication();
             app.UseRouting();
 

@@ -1,0 +1,113 @@
+﻿@page "/posts/Edit"
+@page "/posts/Edit/{Id}"
+@using Tweetbook.WebAssembly.Client.Models
+@inject ITweetbookHelper TweetbookHelper
+@inject NavigationManager NavigationManager
+
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender:false))
+
+<h3>Edit</h3>
+<h4>Post</h4>
+<hr />
+@if (string.IsNullOrEmpty(Id) || Post is null)
+{
+    <PageTitle>Add a Post</PageTitle>
+    <h3>Add a Post</h3>
+}
+else
+{
+    <PageTitle>Edit "@Post.Name"</PageTitle>
+    <h3>Edit "@Post.Name"</h3>
+}
+
+<EditForm FormName="a" Model="Post" OnSubmit="SavePostAsync">
+    <div>
+        <label for="name" class="form-label">Name</label>
+        <InputText id="name" @bind-Value="Post.Name" class="form-control" />
+
+    </div>
+    <div>
+        <label for="tags" class="form-label">Tags</label>
+        <InputText id="tags" @bind-Value="Post.Tags" class="form-control" />
+
+
+    </div>
+    <div class="d-none">
+        <label for="userId" class="form-label">UserId</label>
+        <InputText for="userId" @bind-Value="Post.UserId" class="form-control" />
+
+    </div>
+    <div>
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button class="btn btn-primary" @onclick="@(()=>ViewPosts())">back to List</button>|
+    </div>
+
+</EditForm>
+
+<div>
+    @foreach (var item in @Errors)
+    {
+        <p>@item</p>
+    }
+</div>
+@code {
+    [Parameter]
+    public string Id { get; set; } = "a";
+    UpdatePost Post { get; set; } = new UpdatePost { Name = "a", PostId = Guid.Empty, Tags = "b", UserId = "c" };
+    ICollection<string> Errors { get; set; } = new List<string>();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(Id))
+        {
+            var respons = await TweetbookHelper.GetPostAsync(new Guid(Id));
+            if (respons.Success)
+                Post = new UpdatePost()
+                    {
+                        Name = respons.PostResponseResponse.Data.Name,
+                        PostId = respons.PostResponseResponse.Data.Id,
+                        Tags = string.Join(" ", respons.PostResponseResponse.Data.Tags.Select(t => t.Name)),
+                        UserId = respons.PostResponseResponse.Data.UserId
+                    };
+
+            Errors = respons.Errors;
+        }
+    }
+
+    private async Task SavePostAsync()
+    {
+        if (string.IsNullOrEmpty(Id))
+        {
+            var result = await TweetbookHelper.CreatePostAsync(new CreatePost
+                {
+                    Name = Post.Name,
+                    Tags = Post.Tags
+                });
+            if (result.Success)
+            {
+                NavigationManager.NavigateTo("/posts");
+            }
+            else
+            {
+                Errors = result.Errors;
+            }
+        }
+        else
+        {
+            var result = await TweetbookHelper.UpdatePostAsync(Post);
+            if (result.Success)
+            {
+                NavigationManager.NavigateTo("/posts");
+            }
+            else
+            {
+                Errors = result.Errors;
+            }
+        }
+    }
+
+    private void ViewPosts()
+    {
+        NavigationManager.NavigateTo("/posts");
+    }
+}

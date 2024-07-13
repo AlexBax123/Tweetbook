@@ -1,9 +1,9 @@
-﻿@page "/Login"
+﻿@page "/Posts/Login"
 @inject ITweetbookHelper TweetbookHelper
 @inject NavigationManager NavigationManager
 @inject CookieStorageAccessor CookieStorageAccessor
 @inject ILogger<Login> Logger
-@rendermode InteractiveServer
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender:false))
 
 <h3>Login</h3>
 

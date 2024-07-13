@@ -1,26 +1,30 @@
-﻿using Polly;
+﻿using Microsoft.AspNetCore.Http;
+using Polly;
 using Polly.Retry;
 using System.Net;
 using System.Text.RegularExpressions;
-using Tweetbook.Blazor.Client.Models;
+using Tweetbook.WebAssembly.Client.Models;
 using TweetbookApi;
 
-namespace Tweetbook.Blazor.Client.Services
+namespace Tweetbook.WebAssembly.Client.Services
 {
     public class TweetbookHelper : ITweetbookHelper
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly HttpClient _httpClient;
+         private readonly HttpClient _httpClient;
+        private readonly CookieStorageAccessor _cookieStorageAccessor;
 
-        public TweetbookHelper(IHttpContextAccessor httpContextAccessor, HttpClient httpClient)
+        public TweetbookHelper(
+            HttpClient httpClient, CookieStorageAccessor cookieStorageAccessor)//, Blazored.SessionStorage.ISessionStorageService sessionStorage)
         {
-            _httpContextAccessor = httpContextAccessor;
+            //_httpContextAccessor = httpContextAccessor;
             _httpClient = httpClient;
+            _cookieStorageAccessor = cookieStorageAccessor;
         }
 
         public async Task<AllPostsResponseData> GetAllPostsAsync()
         {
-            if (!LoggedIn(out string token))
+            (bool loggedIn, string token) = await LoggedInAsync();
+            if (!loggedIn)
             {
                 return new AllPostsResponseData()
                 {
@@ -66,12 +70,49 @@ namespace Tweetbook.Blazor.Client.Services
 
         }
 
-        private bool LoggedIn(out string token)
+        private async Task SetToken(string token)
         {
-            var session = _httpContextAccessor.HttpContext.Session;
-            token = session.GetString("blazor_token") ?? "";
-            var refreshtoken = session.GetString("blazor_refreshtoken");
-            return !string.IsNullOrWhiteSpace(token) && !string.IsNullOrWhiteSpace(refreshtoken);
+            await _cookieStorageAccessor.SetValueAsync<string>("blazor_token", token); 
+        }
+
+        private async Task SetRefreshToken(string token)
+        {
+            await _cookieStorageAccessor.SetValueAsync<string>("blazor_refreshtoken", token);
+        }
+
+        private async Task<string> GetToken()
+        {
+            var blazor_token = await GetCookieValue("blazor_token");
+            return blazor_token;
+        }
+
+        private async Task<string>GetCookieValue(string key)
+        {
+            var fullcookie= await _cookieStorageAccessor.GetValueAsync<string>("whatever");
+            if (fullcookie == string.Empty)
+                return null;   
+            var keypairvaluesstrings = fullcookie.Split(';');
+            Dictionary<string,string> keyValuePairs = new Dictionary<string,string>();
+            foreach (var keypair in keypairvaluesstrings)
+            {
+                var split = keypair.Split('=');
+                keyValuePairs.Add(split[0].Trim(), split[1].Trim());
+            }
+            keyValuePairs.TryGetValue(key, out string? value);
+            return value;
+        }
+
+
+        private async Task<string> GetrefreshToken()
+        {
+            var blazor_refreshtoken = await GetCookieValue("blazor_refreshtoken");
+            return blazor_refreshtoken;
+        }
+        private async Task<(bool, string)> LoggedInAsync()
+        {
+            var token = await GetToken();
+            var refreshtoken = await GetrefreshToken();
+            return (!string.IsNullOrWhiteSpace(token) && !string.IsNullOrWhiteSpace(refreshtoken), token);
         }
 
         private AsyncRetryPolicy GetPolicy()
@@ -84,9 +125,9 @@ namespace Tweetbook.Blazor.Client.Services
                 {
                     var apiClient = new TweetbookService(_httpClient.BaseAddress.ToString(), _httpClient);
 
-                    var session = _httpContextAccessor.HttpContext.Session;
-                    var token = session.GetString("blazor_token");
-                    var refreshtoken = session.GetString("blazor_refreshtoken");
+                    //var session = _httpContextAccessor.HttpContext.Session;
+                    var token = await GetToken();
+                    var refreshtoken = await GetrefreshToken();
 
 
                     var refrequest = new RefreshTokenRequest() { Token = token, RefreshToken = refreshtoken };
@@ -95,8 +136,8 @@ namespace Tweetbook.Blazor.Client.Services
                      apiClient.RefreshAsync(refrequest);
                     token = response.Token;
                     refreshtoken = response.RefreshToken;
-                    session.SetString("blazor_token", token);
-                    session.SetString("blazor_refreshtoken", refreshtoken);
+                    await SetToken(token);
+                    await SetRefreshToken(refreshtoken);
                     Console.WriteLine($"new token {token}");
                     _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
@@ -115,9 +156,9 @@ namespace Tweetbook.Blazor.Client.Services
                 Tags = tags
             };
 
-            var session = _httpContextAccessor.HttpContext.Session;
-            var token = session.GetString("blazor_token");
-            var refreshtoken = session.GetString("blazor_refreshtoken");
+            //var session = _httpContextAccessor.HttpContext.Session;
+            var token = await GetToken();
+            var refreshtoken = await GetrefreshToken();
             if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(refreshtoken))
             {
                 return new CreatePostResponseData()
@@ -173,9 +214,9 @@ namespace Tweetbook.Blazor.Client.Services
 
             };
 
-            var session = _httpContextAccessor.HttpContext.Session;
-            var token = session.GetString("blazor_token");
-            var refreshtoken = session.GetString("blazor_refreshtoken");
+            //var session = _httpContextAccessor.HttpContext.Session;
+            var token = await GetToken();
+            var refreshtoken = await GetrefreshToken();
             if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(refreshtoken))
             {
                 return new UpdatePostResponseData()
@@ -237,10 +278,10 @@ namespace Tweetbook.Blazor.Client.Services
                 {
                     Success = true
                 };
-                var session = _httpContextAccessor.HttpContext.Session;
-                session.SetString("blazor_token", result.Token);
-                session.SetString("blazor_refreshtoken", result.RefreshToken);
-                session.SetString("blazor_UserName", loginData.Email);
+
+                await SetToken(result.Token);
+                await SetRefreshToken(result.RefreshToken);
+                //await _sessionStorage.SetItemAsync("blazor_UserName", loginData.Email);
 
                 return loginResponseData;
             }
@@ -283,9 +324,9 @@ namespace Tweetbook.Blazor.Client.Services
                 {
                     Success = true
                 };
-                var session = _httpContextAccessor.HttpContext.Session;
-                session.SetString("blazor_token", result.Token);
-                session.SetString("blazor_refreshtoken", result.RefreshToken);
+               // var session = _httpContextAccessor.HttpContext.Session;
+                await SetToken(result.Token);
+                await SetRefreshToken(result.RefreshToken);
                 return registerResponseData;
             }
             catch (ApiException<AuthFailureResponse> ex)
@@ -298,6 +339,15 @@ namespace Tweetbook.Blazor.Client.Services
                 return registerResponseData;
             }
             catch (ApiException ex)
+            {
+                var registerResponseData = new RegisterResponseData()
+                {
+                    Success = false,
+                    Errors = new List<string>() { ex.Message }
+                };
+                return registerResponseData;
+            }
+            catch(HttpRequestException ex)
             {
                 var registerResponseData = new RegisterResponseData()
                 {
@@ -320,9 +370,9 @@ namespace Tweetbook.Blazor.Client.Services
 
         public async Task<PostResponseData> GetPostAsync(Guid id)
         {
-            var session = _httpContextAccessor.HttpContext.Session;
-            var token = session.GetString("blazor_token");
-            var refreshtoken = session.GetString("blazor_refreshtoken");
+            //var session = _httpContextAccessor.HttpContext.Session;
+            var token = await GetToken();
+            var refreshtoken = await GetrefreshToken();
             if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(refreshtoken))
             {
                 return new PostResponseData()
@@ -372,9 +422,9 @@ namespace Tweetbook.Blazor.Client.Services
 
         public async Task<DeleteResponseData> DeletePostAsync(Guid id)
         {
-            var session = _httpContextAccessor.HttpContext.Session;
-            var token = session.GetString("blazor_token");
-            var refreshtoken = session.GetString("blazor_refreshtoken");
+            // var session = _httpContextAccessor.HttpContext.Session;
+            var token = await GetToken();
+            var refreshtoken = await GetrefreshToken();
             if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(refreshtoken))
             {
                 return new DeleteResponseData()

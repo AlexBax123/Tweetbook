@@ -1,13 +1,13 @@
-﻿@page "/Login"
+﻿@page "/Posts/Register"
 @inject ITweetbookHelper TweetbookHelper
 @inject NavigationManager NavigationManager
 @inject CookieStorageAccessor CookieStorageAccessor
-@inject ILogger<Login> Logger
-@rendermode InteractiveServer
+@inject ILogger<Register> Logger
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender:false))
 
-<h3>Login</h3>
+<h3>Register</h3>
 
-<EditForm FormName="LoginForm" Model="Input" OnSubmit="LoginAsync">
+<EditForm FormName="RegisterForm" Model="Input" OnSubmit="RegisterAsync">
     <div>
         <label for="email" class="form-label">Email</label>
         <InputText id="email" @bind-Value="Input.Email"  class="form-control" />
@@ -17,24 +17,24 @@
         <InputText id="password" @bind-Value="Input.Password" class="form-control" />
     </div>
     <div>
-        <button type="submit" class="btn btn-primary">Login</button>
+        <button type="submit" class="btn btn-primary">Register</button>
     </div>
 </EditForm>
 
 @code {
-    public LoginData Input { get; set; } = new ();
+    public RegisterData Input { get; set; } = new ();
     string ReturnUrl { get; set; } = string.Empty;
     string ErrorMessage { get; set; } = string.Empty;
     ICollection<string> Errors { get; set; } = new List<string>();
 
-    private async Task LoginAsync()
+    private async Task RegisterAsync()
     {
-        // This doesn't count login failures towards account lockout
+        // This doesn't count Register failures towards account lockout
         // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-        var result = await TweetbookHelper.Login(Input);
+        var result = await TweetbookHelper.Register(Input);
         if (result.Success)
         {
-            Logger.LogInformation("User logged in.");
+            Logger.LogInformation("User Registered.");
             Errors = new List<string>();
             await CookieStorageAccessor.SetValueAsync("Blazor_UserName", Input.Email);
             NavigationManager.NavigateTo("/posts");

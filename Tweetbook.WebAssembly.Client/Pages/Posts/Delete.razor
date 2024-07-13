@@ -1,0 +1,78 @@
+﻿@page "/posts/Delete/{Id}"
+@inject ITweetbookHelper TweetbookHelper
+@inject NavigationManager NavigationManager
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender:false))
+
+<h3>Are you sure you want to delete this?</h3>
+<h4>Post</h4>
+<hr />
+<PageTitle>Delete "@Post.Name"</PageTitle>
+<h3>Delete "@Post.Name"</h3>
+
+<EditForm FormName="a" Model="Post" OnSubmit="DeletePostAsync">
+    <div>
+        <label for="name" class="form-label">Name: </label>
+        <label id="name">@Post.Name</label>
+    </div>
+    <div>
+        <label for="tags" class="form-label">Tags: </label>
+        <label id="tags">@Post.Tags</label>
+    </div>
+    <div class="d-none">
+        <label for="userId" class="form-label">UserId</label>
+        <InputText for="userId" @bind-Value="Post.UserId" class="form-control" />
+    </div>
+    <div>
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button class="btn btn-primary" @onclick="@(()=>ViewPosts())">back to List</button>|
+    </div>
+
+</EditForm>
+
+<div>
+    @foreach (var item in @Errors)
+    {
+        <p>@item</p>
+    }
+</div>
+@code {
+    [Parameter]
+    public string Id { get; set; } = "";
+    UpdatePost Post { get; set; } = new UpdatePost { Name = "", PostId = Guid.Empty, Tags = "", UserId = "" };
+    ICollection<string> Errors { get; set; } = new List<string>();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(Id))
+        {
+            var respons = await TweetbookHelper.GetPostAsync(new Guid(Id));
+            if (respons.Success)
+                Post = new UpdatePost()
+                    {
+                        Name = respons.PostResponseResponse.Data.Name,
+                        PostId = respons.PostResponseResponse.Data.Id,
+                        Tags = string.Join(" ", respons.PostResponseResponse.Data.Tags.Select(t => t.Name)),
+                        UserId = respons.PostResponseResponse.Data.UserId
+                    };
+
+            Errors = respons.Errors;
+        }
+    }
+
+    private async Task DeletePostAsync()
+    {
+        var result = await TweetbookHelper.DeletePostAsync(Post.PostId);
+        if (result.Success)
+        {
+            NavigationManager.NavigateTo("/posts");
+        }
+        else
+        {
+            Errors = result.Errors;
+        }
+    }
+    private void ViewPosts()
+    {
+        NavigationManager.NavigateTo("/posts");
+    }
+}
